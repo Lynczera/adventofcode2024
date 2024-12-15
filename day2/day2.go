@@ -36,6 +36,7 @@ func main() {
 
 	}
 	fmt.Println(part1(reports))
+	fmt.Println(part2(reports))
 }
 
 func part1(reports [][]int) int {
@@ -75,4 +76,93 @@ func part1(reports [][]int) int {
 	}
 	return safe_reports
 
+}
+
+func remove(list []int, index int) []int {
+	return append(list[:index], list[index+1:]...)
+}
+
+func safe_check(report []int, removed int) bool {
+
+	if removed > 1 {
+		return false
+	} else {
+		check := report[1] - report[0]
+		if (check > 0 && check < 4) || (check*-1 > 0 && check*-1 < 4) {
+			for j := 1; j < len(report)-1; j++ {
+				curr_check := report[j+1] - report[j]
+				if (curr_check > 0 && curr_check < 4) || (curr_check*-1 > 0 && curr_check*-1 < 4) {
+					if check < 0 {
+						if curr_check > 0 {
+
+							unsafe_list1 := make([]int, len(report))
+							copy(unsafe_list1, report)
+
+							unsafe_list2 := make([]int, len(report))
+							copy(unsafe_list2, report)
+
+							unsafe_list3 := make([]int, len(report))
+							copy(unsafe_list3, report)
+							return safe_check(remove(unsafe_list1, j), removed+1) || safe_check(remove(unsafe_list2, j+1), removed+1) || safe_check(remove(unsafe_list3, j-1), removed+1)
+						}
+						check = curr_check
+						continue
+					} else {
+						if curr_check < 0 {
+							unsafe_list1 := make([]int, len(report))
+							copy(unsafe_list1, report)
+
+							unsafe_list2 := make([]int, len(report))
+							copy(unsafe_list2, report)
+
+							unsafe_list3 := make([]int, len(report))
+							copy(unsafe_list3, report)
+							return safe_check(remove(unsafe_list1, j), removed+1) || safe_check(remove(unsafe_list2, j+1), removed+1) || safe_check(remove(unsafe_list3, j-1), removed+1)
+						}
+						check = curr_check
+						continue
+					}
+				} else {
+					unsafe_list1 := make([]int, len(report))
+					copy(unsafe_list1, report)
+
+					unsafe_list2 := make([]int, len(report))
+					copy(unsafe_list2, report)
+
+					unsafe_list3 := make([]int, len(report))
+					copy(unsafe_list3, report)
+					return safe_check(remove(unsafe_list1, j), removed+1) || safe_check(remove(unsafe_list2, j+1), removed+1) || safe_check(remove(unsafe_list3, j-1), removed+1)
+				}
+
+			}
+			//safe
+			return true
+		} else {
+			//unsafe
+			unsafe_list1 := make([]int, len(report))
+			copy(unsafe_list1, report)
+
+			unsafe_list2 := make([]int, len(report))
+			copy(unsafe_list2, report)
+
+			return safe_check(remove(unsafe_list1, 0), removed+1) || safe_check(remove(unsafe_list2, 1), removed+1)
+		}
+	}
+
+}
+
+// 344 381 637(not tested) 317 349
+func part2(reports [][]int) int {
+
+	safes := 0
+
+	for i := 0; i < len(reports); i++ {
+		curr_report := reports[i]
+		is_safe := safe_check(curr_report, 0)
+		if is_safe {
+			safes++
+		}
+
+	}
+	return safes
 }
