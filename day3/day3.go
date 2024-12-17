@@ -26,7 +26,7 @@ func main() {
 		memory = append(memory, line)
 
 	}
-	fmt.Println(part1(memory))
+	// fmt.Println(part1(memory))
 	fmt.Println(part2(memory))
 }
 func part1(mem []string) int {
@@ -57,37 +57,35 @@ func compute(mem string) int {
 	return res
 }
 
-// 28208682 85698778
+// 28208682 85698778(too hight) 12681697
 func part2(mem []string) int {
 	res := 0
+	// sanitize(mem[5], &res)
 	for _, element := range mem {
-		// println(sanitize(element))
-		res += compute(sanitize(element))
+		sanitize(element, &res)
 	}
-	// println(mem[0])
-	// println()
-	// println(sanitize(mem[0]))
 	return res
 }
 
-func sanitize(unSaniMem string) string {
+func sanitize(unSaniMem string, res *int) string {
 	// separate do and donts
-
-	// r, _ := regexp.Compile("x?don't\\(\\).*x?do\\(\\)")
 
 	r, _ := regexp.Compile("don't\\(\\)")
 	dont_conditional := r.FindStringIndex(unSaniMem)
 	if dont_conditional == nil {
-		return unSaniMem
+		*res += compute(unSaniMem)
+		return ""
 	}
 	r2, _ := regexp.Compile("do\\(\\)")
 
 	do_conditional := r2.FindStringIndex(unSaniMem[dont_conditional[1]:])
 
 	if do_conditional == nil {
-		return unSaniMem[:dont_conditional[0]]
+		*res += compute(unSaniMem[:dont_conditional[0]])
+		return ""
 	}
-	// xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
-	return unSaniMem[:dont_conditional[0]] + sanitize(unSaniMem[dont_conditional[1]:][do_conditional[0]:])
+
+	*res += compute(unSaniMem[:dont_conditional[0]])
+	return sanitize(unSaniMem[dont_conditional[1]:][do_conditional[1]:], res)
 
 }
